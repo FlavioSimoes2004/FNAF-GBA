@@ -4,19 +4,24 @@
 #include <gb/gb.h>
 #include <gb/cgb.h>
 
-#include "gbdk-rocks.h"
+//SPRITES
 #include "fnaf.h"
 #include "charmander.h"
 #include "seta.h"
 #include "fonte.h"
+#include "camTiles.h"
+
+//BACKGROUNDS
 #include "menu_fnaf.h"
 #include "tutorial_fnaf.h"
+#include "CamMap.h"
+#include "officeMap.h"
 
 uint8_t currentNight;
 
 void menu(void){
     //carregar o background, sprites, etc
-    set_bkg_data(0, 32, fonte);
+    set_bkg_data(0, 41, fonte); //41 = total de tiles + 1
     set_bkg_tiles(0, 0, 20, 18, menu_fnaf_map);
 
     uint8_t setaNb = 0;
@@ -79,12 +84,14 @@ void menu(void){
                 if(setaY == 80)
                 {
                     //ir para tutorial
-                    currentNight = 0;
+                    currentNight = 1;
+                    hide_sprite(setaNb);
                     tutorial();
                 }
                 else if(setaY == 97)
                 {
                     //continuar
+                    hide_sprite(setaNb);
                     night();
                 }
                 else
@@ -119,20 +126,66 @@ void menu(void){
 }
 
 void tutorial(void){
-    set_bkg_data(0, 0, fonte);
+    set_bkg_data(0, 41, fonte);
     set_bkg_tiles(0, 0, 20, 18, tutorialmap);
 
     waitpad(J_START);
 
-    menu();
+    night();
 }
 
 void night(void){
-    //carregar as coisas
+    set_bkg_data(0, 41, fonte);
+    set_bkg_tiles(0, 0, officeMapWidth, officeMapHeight, officeMap);
 
+    uint8_t camOpen = FALSE;
+    uint8_t prevJoypad;
     while(1)
     {
-        
+        uint8_t auxCam = camOpen;
+        uint8_t currentJoypad = joypad();
+
+        if(currentJoypad & J_LEFT)
+        {
+            prevJoypad = currentJoypad;
+        }
+        else if(currentJoypad & J_RIGHT)
+        {
+            prevJoypad = currentJoypad;
+        }
+        else if(currentJoypad & J_DOWN)
+        {
+            if(prevJoypad != J_DOWN)
+            {
+                if(camOpen == FALSE)
+                {
+                    camOpen = TRUE;
+                }
+                else
+                {
+                    camOpen = FALSE;
+                }
+            }
+            prevJoypad = currentJoypad;
+        }
+        else
+        {
+            prevJoypad = 0;
+        }
+
+        if(camOpen != auxCam)
+        {
+            if(camOpen == FALSE)
+            {
+                set_bkg_data(0, 41, fonte);
+                set_bkg_tiles(0, 0, officeMapWidth, officeMapHeight, officeMap);
+            }
+            else
+            {
+                set_bkg_data(0, 6, camTiles);
+                set_bkg_tiles(0, 0, CamMapWidth, CamMapHeight, CamMap);
+            }
+        }
     }
 }
 
@@ -140,7 +193,12 @@ void extras(void){
 
 }
 
+void minigame(void){
+
+}
+
 void main(void){
-    currentNight = 0;
+    //ver se tem a variavel salva
+    currentNight = 1;
     menu();
 }

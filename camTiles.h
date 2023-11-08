@@ -1,6 +1,6 @@
 /*
 
- FONTE.H
+ CAMTILES.H
 
  Include File.
 
@@ -10,7 +10,7 @@
   Compression          : None.
   Counter              : None.
   Tile size            : 8 x 8
-  Tiles                : 0 to 40
+  Tiles                : 0 to 5
 
   Palette colors       : None.
   SGB Palette          : None.
@@ -24,8 +24,8 @@
 
 
 /* Bank of tiles. */
-#define TileLabelBank 0
+#define camTilesBank 0
 /* Start of tile array. */
-extern unsigned char fonte[];
+extern unsigned char camTiles[];
 
-/* End of FONTE.H */
+/* End of CAMTILES.H */
