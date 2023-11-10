@@ -10,6 +10,8 @@
 #include "seta.h"
 #include "fonte.h"
 #include "camTiles.h"
+#include "animatronics.h"
+#include "ventilador.h"
 
 //BACKGROUNDS
 #include "menu_fnaf.h"
@@ -38,33 +40,18 @@ void menu(void){
     uint8_t setaHidden = FALSE;
     uint32_t currentTick = 0;
     uint32_t maxTick = 3500;
+    //y = 80 = new game
+    //y = 97 = continue
+    //y = 114 = extras
+    uint8_t prevJoypad, currentJoypad;
     while(1)
     {
-        if(pressed == TRUE)
-        {
-            waitpadup();
-            pressed = FALSE;
-        }
+        currentJoypad = joypad();
 
-        switch(joypad())
+        if(currentJoypad & J_DOWN)
         {
-            case J_UP:
-                if(setaY == 80)
-                {
-                    setaY = 114;
-                }
-                else if(setaY == 97)
-                {
-                    setaY = 80;
-                }
-                else
-                {
-                    setaY = 97;
-                }
-                pressed = TRUE;
-            break;
-
-            case J_DOWN:
+            if(prevJoypad != J_DOWN)
+            {
                 if(setaY == 80)
                 {
                     setaY = 97;
@@ -77,32 +64,47 @@ void menu(void){
                 {
                     setaY = 80;
                 }
-                pressed = TRUE;
-            break;
-
-            case J_A:
-                if(setaY == 80)
+            }
+            prevJoypad = J_DOWN;
+        }
+        else if(currentJoypad & J_UP)
+        {
+            if(prevJoypad != J_UP)
+            {
+                if(setaY == 114)
                 {
-                    //ir para tutorial
-                    currentNight = 1;
-                    hide_sprite(setaNb);
-                    tutorial();
+                    setaY = 97;
                 }
                 else if(setaY == 97)
                 {
-                    //continuar
-                    hide_sprite(setaNb);
-                    night();
+                    setaY = 80;
                 }
                 else
                 {
-                    //extras
-                    extras();
+                    setaY = 114;
                 }
-            break;
+            }
+            prevJoypad = J_UP;
         }
-
-        //move_sprite(setaNb, 87, setaY);
+        else if(currentJoypad & J_A)
+        {
+            if(setaY == 80)
+            {
+                tutorial();
+            }
+            else if(setaY == 97)
+            {
+                night();
+            }
+            else
+            {
+                //extras
+            }
+        }
+        else
+        {
+            prevJoypad = 0;
+        }
 
         if(currentTick >= maxTick)
         {
@@ -126,6 +128,7 @@ void menu(void){
 }
 
 void tutorial(void){
+    hide_sprite(0);
     set_bkg_data(0, 41, fonte);
     set_bkg_tiles(0, 0, 20, 18, tutorialmap);
 
@@ -138,6 +141,45 @@ void night(void){
     set_bkg_data(0, 41, fonte);
     set_bkg_tiles(0, 0, officeMapWidth, officeMapHeight, officeMap);
 
+    //animatronics
+    set_sprite_data(0, 7, animatronics);
+    uint8_t currentCharacter = 0;
+    uint8_t robotNb = 0;
+    set_sprite_tile(0, currentCharacter);
+
+    //freddy
+    uint8_t freddySprite = 0;
+    uint8_t posFreddy = 0;
+
+    //bonnie
+    uint8_t bonnieSprite = 1;
+    uint8_t posBonnie = 0;
+
+    //chica
+    uint8_t chicaSprite = 2;
+    uint8_t posChica = 0;
+
+    //foxy
+    uint8_t posFoxy = 5;
+
+    //-------------------------------------------------//
+    //ventilador
+    set_sprite_data(7, 3, ventilador);
+    uint8_t ventiY = 75;
+    uint8_t currentVentiIndex = 7;
+    uint8_t ventiNb = 1;
+    set_sprite_tile(1, 4);
+
+    uint8_t ventiBaseNb = 2;
+    set_sprite_tile(2, 9);
+
+    move_sprite(ventiNb, 75, ventiY);
+    move_sprite(ventiBaseNb, 75, ventiY + 8);
+
+    uint32_t currentTime = 0;
+    uint32_t maxTime = 10000; //1 segundo, nao é o tempo do jogo
+    uint8_t hour = 0; //horas do jogo, quando isso aki ficar 6 o jogador passa
+
     uint8_t camOpen = FALSE;
     uint8_t prevJoypad;
     while(1)
@@ -147,10 +189,47 @@ void night(void){
 
         if(currentJoypad & J_LEFT)
         {
+            if(prevJoypad != J_LEFT)
+            {
+                if(camOpen == TRUE)
+                {
+                    //trocar personagem
+                    if(currentCharacter == 0)
+                    {
+                        currentCharacter = 3;
+                    }
+                    else
+                    {
+                        currentCharacter--;
+                    }
+                }
+                else
+                {
+                    //fechar porta esquerda
+                }
+            }
             prevJoypad = currentJoypad;
         }
         else if(currentJoypad & J_RIGHT)
         {
+            if(prevJoypad != J_RIGHT)
+            {
+                if(camOpen == TRUE)
+                {
+                    if(currentCharacter == 3)
+                    {
+                        currentCharacter = 0;
+                    }
+                    else
+                    {
+                        currentCharacter++;
+                    }
+                }
+                else
+                {
+                    //fechar porta esquerda
+                }
+            }
             prevJoypad = currentJoypad;
         }
         else if(currentJoypad & J_DOWN)
@@ -177,14 +256,99 @@ void night(void){
         {
             if(camOpen == FALSE)
             {
+                //esconde sprite animatronic
+                hide_sprite(robotNb);
+
+                //aparece sprite do escritorio
+                move_sprite(ventiNb, 75, 75);
+                move_sprite(ventiBaseNb, 75, ventiY + 8);
+
                 set_bkg_data(0, 41, fonte);
                 set_bkg_tiles(0, 0, officeMapWidth, officeMapHeight, officeMap);
             }
-            else
+            else //camOpen == TRUE
             {
-                set_bkg_data(0, 6, camTiles);
+                //desaparece sprite escritorio
+                hide_sprite(ventiNb);
+                hide_sprite(ventiBaseNb);
+
+                //aparece sprites da camera
+                move_sprite(0, 75, 75);
+                set_bkg_data(0, 10, camTiles);
                 set_bkg_tiles(0, 0, CamMapWidth, CamMapHeight, CamMap);
             }
+        }
+        else //camOpen == auxCam
+        {
+            if(camOpen == FALSE)
+            {
+                set_sprite_tile(ventiNb, currentVentiIndex);
+            }
+            else //camOpen == TRUE
+            {
+                if(currentCharacter == 0) //freddy
+                {
+                    if(posFreddy == 0)
+                    {
+                        set_sprite_tile(robotNb, freddySprite);
+                        move_sprite(robotNb, 85, 37);
+                    }
+                }
+                else if(currentCharacter == 1) //bonnie
+                {
+                    if(posBonnie == 0)
+                    {
+                        set_sprite_tile(robotNb, bonnieSprite);
+                        move_sprite(robotNb, 70, 37);
+                    }
+                }
+                else if(currentCharacter == 2) //chica
+                {
+                    if(posChica == 0)
+                    {
+                        set_sprite_tile(robotNb, chicaSprite);
+                        move_sprite(robotNb, 100, 37);
+                    }
+                }
+                else //foxy
+                {
+                    if(posFoxy == 0)
+                    {
+                        set_sprite_tile(robotNb, 3);
+                    }
+                    else if(posFoxy == 1)
+                    {
+                        set_sprite_tile(robotNb, 4);
+                    }
+                    else if(posFoxy == 2)
+                    {
+                        set_sprite_tile(robotNb, 5);
+                    }
+                    else
+                    {
+                        set_sprite_tile(robotNb, 6);
+                    }
+
+                    if(posFoxy <= 5)
+                    {
+                        move_sprite(robotNb, 45, 60);
+                    }
+                }
+            }
+        }
+
+        if(currentTime >= maxTime)
+        {
+            currentTime = 0;
+            currentVentiIndex = 7;
+        }
+        else
+        {
+            if(currentTime == maxTime / 2)
+            {
+                currentVentiIndex = 8;
+            }
+            currentTime++;
         }
     }
 }

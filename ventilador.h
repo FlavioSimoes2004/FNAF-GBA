@@ -1,6 +1,6 @@
 /*
 
- CAMTILES.H
+ VENTILADOR.H
 
  Include File.
 
@@ -10,7 +10,7 @@
   Compression          : None.
   Counter              : None.
   Tile size            : 8 x 8
-  Tiles                : 0 to 9
+  Tiles                : 0 to 2
 
   Palette colors       : None.
   SGB Palette          : None.
@@ -24,8 +24,8 @@
 
 
 /* Bank of tiles. */
-#define camTilesBank 0
+#define TileLabelBank 0
 /* Start of tile array. */
-extern unsigned char camTiles[];
+extern unsigned char ventilador[];
 
-/* End of CAMTILES.H */
+/* End of VENTILADOR.H */

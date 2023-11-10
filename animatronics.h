@@ -1,6 +1,6 @@
 /*
 
- CAMTILES.H
+ ANIMATRONICS.H
 
  Include File.
 
@@ -10,7 +10,7 @@
   Compression          : None.
   Counter              : None.
   Tile size            : 8 x 8
-  Tiles                : 0 to 9
+  Tiles                : 0 to 6
 
   Palette colors       : None.
   SGB Palette          : None.
@@ -24,8 +24,8 @@
 
 
 /* Bank of tiles. */
-#define camTilesBank 0
+#define animatronicsBank 0
 /* Start of tile array. */
-extern unsigned char camTiles[];
+extern unsigned char animatronics[];
 
-/* End of CAMTILES.H */
+/* End of ANIMATRONICS.H */
